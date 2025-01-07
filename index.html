@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunny智能英语系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .main-content {
+            flex: 1;
+        }
+        .page-title {
+            text-align: center;
+            color: #333;
+            font-size: 32px;
+            margin: 0 0 30px 0;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4CAF50;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 20px;
+        }
+        .word-list-section {
+            flex: 0.5;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            overflow-y: auto;
+            margin-top: 82px;
+            position: sticky;
+            top: 20px;
+            height: calc(100vh - 102px);
+            margin-left: 20px;
+        }
+        .word-list-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .word-list-item:last-child {
+            border-bottom: none;
+        }
+        .word-english {
+            font-weight: bold;
+            color: #333;
+        }
+        .word-phonetic {
+            color: #666;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        .word-chinese {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+        .review-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .review-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 100px;
+        }
+        .review-button:hover {
+            background-color: #45a049;
+        }
+        .word-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .import-section {
+            margin: 20px 0;
+        }
+        .word-display {
+            font-size: 24px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .word-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .pronunciation-button {
+            background-color: #4CAF50;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+        }
+        .pronunciation-button:hover {
+            background-color: #45a049;
+        }
+        .word-counter {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #666;
+        }
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .control-button {
+            padding: 10px 20px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .control-button:hover {
+            background-color: #007399;
+        }
+        .template-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #wordText {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        #phoneticText {
+            font-size: 18px;
+            color: #666;
+            margin: 5px 0;
+        }
+        #meaningText {
+            font-size: 24px;
+            color: #444;
+            margin: 10px 0;
+        }
+        .unmastered-count {
+            font-size: 0.9em;
+            color: #fff;
+            background-color: #f44336;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+        .login-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .login-box {
+            background-color: #f9f9f9;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            text-align: center;
+        }
+        .login-box h2 {
+            margin-top: 0;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 4px;
+        }
+        .login-box input::placeholder {
+            letter-spacing: 0;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .login-box button:hover {
+            background-color: #45a049;
+        }
+        .main-container {
+            display: none; /* 默认隐藏所有内容 */
+        }
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .expiration-info {
+            color: #666;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .logout-button {
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .logout-button:hover {
+            background-color: #d32f2f;
+        }
+        .important-words-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff3e0;
+            border-radius: 5px;
+            border: 1px solid #ffe0b2;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .important-words-section h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #f4511e;
+        }
+        .important-count {
+            font-size: 0.8em;
+            color: #ff5722;
+            background-color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+        .important-button {
+            background-color: #ff5722;
+        }
+        .important-button:hover {
+            background-color: #f4511e;
+        }
+        .important-button.active {
+            background-color: #f4511e;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        .important-review-button {
+            background-color: #ff5722;
+            font-weight: bold;
+        }
+        .important-review-button:hover {
+            background-color: #f4511e;
+        }
+        .word-tag {
+            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            color: white;
+        }
+        .important-tag {
+            background-color: #ff5722;
+        }
+        .progress-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .progress-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 30px;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            line-height: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        .import-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .file-input-group {
+            flex: 1;
+        }
+        .import-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .append-button.active {
+            background-color: #4CAF50;
+        }
+        .append-button:not(.active) {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div class="login-section" id="loginSection">
+        <div class="login-box">
+            <h2>Sunny智能英语系统</h2>
+            <input type="password" id="authCode" placeholder="请输入授权码" required>
+            <button onclick="login()">验证授权</button>
+        </div>
+    </div>
+
+    <!-- 将所有主要内容包装在一个容器中 -->
+    <div class="main-container" id="mainContainer">
+        <!-- 用户信息显示 -->
+        <div class="user-info" style="display: none;" id="userInfo">
+            <span class="expiration-info" id="expirationInfo"></span>
+            <button class="logout-button" onclick="logout()">退出系统</button>
+        </div>
+
+        <div class="main-content">
+            <h1 class="page-title">Sunny智能英语系统</h1>
+            
+            <div class="review-buttons" style="margin-top: 82px;">
+                <button class="review-button" onclick="startReview(1)">第1轮</button>
+                <button class="review-button" onclick="startReview(2)">第2轮</button>
+                <button class="review-button" onclick="startReview(3)">第3轮</button>
+                <button class="review-button" onclick="startReview(4)">第4轮</button>
+                <button class="review-button" onclick="startReview(5)">第5轮</button>
+                <button class="review-button" onclick="startReview(6)">第6轮</button>
+                <button class="review-button" onclick="startReview(7)">第7轮</button>
+                <button class="review-button" onclick="startReview(8)">第8轮</button>
+                <button class="review-button" onclick="startReview(9)">第9轮</button>
+            </div>
+            <div class="important-review-container" style="margin-top: 10px;">
+                <button class="review-button important-review-button" onclick="startImportantReview()" style="width: 100%;">重点复习</button>
+            </div>
+
+            <div class="import-section">
+                <h2>导入单词</h2>
+                <div class="import-controls">
+                    <div class="file-input-group">
+                        <input type="file" id="fileInput" accept=".csv, .xlsx" onchange="handleFileSelect(event)">
+                        <p>支持的文件格式：CSV 或 Excel (.xlsx)</p>
+                    </div>
+                    <div class="import-buttons">
+                        <button class="control-button" onclick="clearAllWords()">清空单词</button>
+                        <button class="control-button append-button" onclick="toggleAppendMode()">追加模式: <span id="appendModeStatus">关闭</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="word-section" style="display: none;">
+                <div class="word-counter">
+                    第 <span id="currentWordNumber">0</span> 个单词，共 <span id="totalWords">0</span> 个
+                </div>
+                <div class="word-display">
+                    <div class="word-info">
+                        <div id="wordText"></div>
+                        <button class="pronunciation-button" onclick="pronounceWord()" title="播放发音">
+                            <span style="font-size: 20px;">🔊</span> 播放发音
+                        </button>
+                    </div>
+                    <div id="phoneticText"></div>
+                    <div id="meaningText" style="display: none;"></div>
+                </div>
+                <div class="control-buttons">
+                    <button class="control-button" onclick="showMeaning()">显示含义</button>
+                    <button class="control-button" onclick="markAsKnown()">已掌握</button>
+                    <button class="control-button" onclick="markAsUnknown()">未掌握</button>
+                    <button class="control-button important-button" onclick="toggleImportant()">标记重点</button>
+                    <button class="control-button" onclick="previousWord()">上一个</button>
+                    <button class="control-button" onclick="nextWord()">下一个</button>
+                </div>
+            </div>
+
+            <div class="important-words-section">
+                <h2>重点单词 <span id="importantCount" class="important-count"></span>
+                    <button class="control-button" onclick="exportWordList('important')" style="float: right; padding: 2px 8px; font-size: 12px;">
+                        导出打印
+                    </button>
+                </h2>
+                <div id="importantWordList"></div>
+            </div>
+
+            <div class="progress-section">
+                <h2>学习进度
+                    <button class="control-button" onclick="exportWordList('unmastered')" style="float: right; padding: 2px 8px; font-size: 12px;">
+                        导出未掌握单词
+                    </button>
+                </h2>
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">总单词数：</div>
+                        <div class="stat-value" id="totalWordsCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">已掌握：</div>
+                        <div class="stat-value" id="masteredCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">未掌握：</div>
+                        <div class="stat-value" id="unmasteredCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">重点单词：</div>
+                        <div class="stat-value" id="importantWordsCount">0</div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-text" id="progressText">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="word-list-section">
+            <h2>已导入的单词列表</h2>
+            <div id="wordList"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
