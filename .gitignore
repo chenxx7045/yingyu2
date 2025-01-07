@@ -1,0 +1,24 @@
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 文件
+.idea/
+.vscode/
+*.sublime-*
+
+# 临时文件
+*.log
+*.tmp
+
+# Excel 临时文件
+~$*.xlsx
+~$*.xls
+
+# 其他不需要的文件
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.zip
+*.rar 
