@@ -33,14 +33,13 @@ const AUTH_CODES = new Set([
 ]);
 
 // 设置到期时间
-const EXPIRATION_DATE = new Date('2024-03-31T23:59:59+08:00');
+const EXPIRATION_DATE = new Date('2024-01-23T23:59:59+08:00');
 
 // 修改日期比较函数
 function isExpired() {
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const expirationDay = new Date(EXPIRATION_DATE.getFullYear(), EXPIRATION_DATE.getMonth(), EXPIRATION_DATE.getDate());
-    return today > expirationDay;
+    // 使用完整的时间戳进行比较，而不是只比较日期
+    return now > EXPIRATION_DATE;
 }
 
 // 初始化语音
@@ -778,11 +777,32 @@ function login() {
 // 显示主要内容
 function showMainContent() {
     document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('mainContainer').style.display = 'flex';
-    document.getElementById('userInfo').style.display = 'flex';
+    document.getElementById('menuSection').style.display = 'flex';
+    document.getElementById('backButton').style.display = 'block';
 }
 
-// 退出登录
+// 开始上课功能
+function startLearning() {
+    console.log('开始上课被点击');
+    document.getElementById('menuSection').style.display = 'none';
+    document.getElementById('mainContainer').style.display = 'flex';
+    document.getElementById('userInfo').style.display = 'flex';
+    document.getElementById('backButton').style.display = 'block';
+    loadUserData();
+}
+
+// 抗遗忘学习功能
+function startReviewMode() {
+    console.log('抗遗忘被点击');
+    alert('抗遗忘功能正在开发中，敬请期待！');
+}
+
+// 学生管理功能
+function manageStudents() {
+    alert('学生管理功能正在开发中，敬请期待！');
+}
+
+// 修改退出函数
 function logout() {
     // 先保存数据
     saveUserData();
@@ -799,25 +819,18 @@ function logout() {
     currentWordIndex = 0;
     importantWords.clear();
     
-    // 直接修改 DOM 显示状态
-    const mainContainer = document.getElementById('mainContainer');
-    const loginSection = document.getElementById('loginSection');
-    const userInfo = document.getElementById('userInfo');
-    
-    if (mainContainer) mainContainer.style.display = 'none';
-    if (loginSection) loginSection.style.display = 'flex';
-    if (userInfo) userInfo.style.display = 'none';
+    // 隐藏所有界面，显示登录界面
+    document.getElementById('mainContainer').style.display = 'none';
+    document.getElementById('menuSection').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'flex';
+    document.getElementById('userInfo').style.display = 'none';
     
     // 清空授权码输入框
-    const authCodeInput = document.getElementById('authCode');
-    if (authCodeInput) authCodeInput.value = '';
+    document.getElementById('authCode').value = '';
     
     // 重置其他UI元素
-    const wordList = document.getElementById('wordList');
-    const wordSection = document.querySelector('.word-section');
-    
-    if (wordList) wordList.innerHTML = '';
-    if (wordSection) wordSection.style.display = 'none';
+    document.getElementById('wordList').innerHTML = '';
+    document.querySelector('.word-section').style.display = 'none';
     
     // 更新进度显示
     updateProgress();
@@ -1229,21 +1242,22 @@ function updateExpirationInfo() {
     const authCode = localStorage.getItem('authCode');
     
     if (authCode === 'SUNNY888888') {
-        expirationInfo.textContent = '永久授权';
+        expirationInfo.textContent = '永久有效';
         return;
     }
     
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const expirationDay = new Date(EXPIRATION_DATE.getFullYear(), EXPIRATION_DATE.getMonth(), EXPIRATION_DATE.getDate());
-    const daysLeft = Math.ceil((expirationDay - today) / (1000 * 60 * 60 * 24));
+    // 计算剩余毫秒数
+    const timeLeft = EXPIRATION_DATE - now;
+    // 转换为天数（向上取整）
+    const daysLeft = Math.ceil(timeLeft / (1000 * 60 * 60 * 24));
     
     if (daysLeft > 0) {
-        expirationInfo.textContent = `授权剩余 ${daysLeft} 天`;
+        expirationInfo.textContent = `剩余 ${daysLeft} 天`;
     } else {
-        expirationInfo.textContent = '授权已过期';
+        expirationInfo.textContent = '已过期';
         setTimeout(() => {
-            alert('授权已过期，请联系管理员获取新的授权码！');
+            alert('兑换码已过期，请联系管理员获取新的兑换码！');
             logout();
         }, 1000);
     }
@@ -1251,3 +1265,45 @@ function updateExpirationInfo() {
 
 // 添加定时更新到期时间显示
 setInterval(updateExpirationInfo, 60000); // 每分钟更新一次 
+
+// 添加返回上一页功能
+function goBack() {
+    console.log('返回上一页被点击');
+    // 保存当前数据
+    saveUserData();
+    
+    const mainContainer = document.getElementById('mainContainer');
+    const menuSection = document.getElementById('menuSection');
+    const loginSection = document.getElementById('loginSection');
+    const userInfo = document.getElementById('userInfo');
+    const backButton = document.getElementById('backButton');
+    
+    // 如果在主界面，返回到菜单界面
+    if (mainContainer && window.getComputedStyle(mainContainer).display !== 'none') {
+        console.log('从主界面返回到菜单');
+        mainContainer.style.display = 'none';
+        menuSection.style.display = 'flex';
+        userInfo.style.display = 'none';
+        // 重置单词学习界面
+        document.querySelector('.word-section').style.display = 'none';
+    }
+    // 如果在菜单界面，返回到登录界面
+    else if (menuSection && window.getComputedStyle(menuSection).display !== 'none') {
+        console.log('从菜单返回到登录');
+        menuSection.style.display = 'none';
+        loginSection.style.display = 'flex';
+        backButton.style.display = 'none';
+        // 清除授权信息
+        localStorage.removeItem('isAuthorized');
+        localStorage.removeItem('authCode');
+        localStorage.removeItem('expirationDate');
+        // 清空授权码输入框
+        document.getElementById('authCode').value = '';
+        // 重置数据
+        allWords = [];
+        reviewRounds = Array(9).fill().map(() => []);
+        currentRound = 0;
+        currentWordIndex = 0;
+        importantWords.clear();
+    }
+} 
